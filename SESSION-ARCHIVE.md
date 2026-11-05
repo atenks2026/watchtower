@@ -1,7 +1,7 @@
 # AHVO2 SESSION ARCHIVE
 # Complete session log from initialization to submission-ready
 # Date: 2026-11-02 | Project: UGREEN AI NAS Hackathon 2026 - Watchtower
-# Repository: https://github.com/atenks2026/AHVO2
+**Repository**: https://github.com/atenks2026/watchtower
 
 ---
 
