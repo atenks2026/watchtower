@@ -1,0 +1,155 @@
+{
+  "name": "watchtower",
+  "version": "1.0.0",
+  "description": "AI Security Analyzer: Natural language query → cross-camera anomaly detection → HTML security briefing with video clips. Turns unwatched footage into actionable security intelligence.",
+  "author": "AHVO2 Team",
+  "license": "MIT",
+  "tags": ["surveillance", "security", "video-analysis", "home-automation", "ai-nas"],
+  "ugos_capabilities": ["surveillance", "video", "knowledge", "files"],
+  "ugos_version": "1.0",
+  "min_ugos_version": "1.0",
+  "entry_point": "watchtower.cli:main",
+  "package": "watchtower",
+  "python_version": ">=3.10",
+  "capabilities": [
+    {
+      "id": "watchtower.query_events",
+      "name": "Query Security Events",
+      "description": "Natural language query for camera events across all authorized cameras",
+      "inputs": {
+        "query": {"type": "string", "required": true, "description": "Natural language query (e.g., 'person detections last 24h')"},
+        "timeframe": {"type": "string", "required": false, "description": "Explicit timeframe override (e.g., '24h', '7d')"},
+        "filters": {"type": "object", "required": false, "description": "Filters: camera_id, event_type, min_confidence"}
+      },
+      "outputs": {
+        "events": {"type": "array", "description": "Structured event list with timestamp, camera_id, event_type, confidence, metadata"},
+        "count": {"type": "integer", "description": "Number of events found"}
+      },
+      "confirmation_required": false,
+      "confirmation_type": null
+    },
+    {
+      "id": "watchtower.extract_clips",
+      "name": "Extract Event Clips",
+      "description": "Extract video clips ±30 seconds around detected events",
+      "inputs": {
+        "events": {"type": "array", "required": true, "description": "Event list from query_events"},
+        "padding_seconds": {"type": "integer", "required": false, "default": 30, "description": "Seconds before/after event"},
+        "output_folder": {"type": "string", "required": false, "default": "/Security/YYYY-MM-DD/", "description": "Destination folder"}
+      },
+      "outputs": {
+        "clips": {"type": "array", "description": "Clip metadata with paths, timestamps, durations"},
+        "extracted_count": {"type": "integer", "description": "Number of clips successfully extracted"}
+      },
+      "confirmation_required": true,
+      "confirmation_type": "batch",
+      "confirmation_message": "Extract {count} clips to {folder}? Each clip is ±{padding}s around detected event."
+    },
+    {
+      "id": "watchtower.generate_briefing",
+      "name": "Generate Security Briefing",
+      "description": "AI-generated HTML security briefing with embedded video clips, timeline, and recommendations",
+      "inputs": {
+        "events": {"type": "array", "required": true, "description": "Event list from query_events"},
+        "clips": {"type": "array", "required": true, "description": "Clip metadata from extract_clips"},
+        "template": {"type": "string", "required": false, "enum": ["standard", "executive", "detailed"], "default": "standard", "description": "Briefing template style"}
+      },
+      "outputs": {
+        "report_path": {"type": "string", "description": "Path to generated HTML report"},
+        "report_size_bytes": {"type": "integer", "description": "Size of generated report"}
+      },
+      "confirmation_required": true,
+      "confirmation_type": "single",
+      "confirmation_message": "Generate {template} HTML security briefing with {count} embedded clips?"
+    }
+  ],
+  "permissions": [
+    {
+      "name": "surveillance.query",
+      "description": "Read camera event logs from authorized cameras",
+      "required": true,
+      "user_consent": true
+    },
+    {
+      "name": "video.extract",
+      "description": "Extract video clips from authorized camera recordings",
+      "required": true,
+      "user_consent": true
+    },
+    {
+      "name": "files.write",
+      "description": "Write clips and HTML reports to authorized NAS folders",
+      "required": true,
+      "user_consent": true
+    },
+    {
+      "name": "knowledge.generate",
+      "description": "Generate AI analysis using local LLM (Nemotron via NIM)",
+      "required": true,
+      "user_consent": false,
+      "note": "Local model only, no data leaves NAS"
+    }
+  ],
+  "privacy": {
+    "data_locality": "100% local on NAS",
+    "cloud_egress": false,
+    "biometric_processing": false,
+    "face_recognition": "opt-in only, default OFF",
+    "data_retention": "Configurable, default 30 days",
+    "compliance": ["BIPA", "GDPR", "UU PDP"],
+    "third_party_models": ["NVIDIA Nemotron via NIM (free tier)"],
+    "external_apis": []
+  },
+  "resources": {
+    "ram_mb": 256,
+    "storage_mb": 50,
+    "cpu_cores": 1,
+    "network": "optional (only for NIM model fallback)"
+  },
+  "compatibility": {
+    "ugos_version": ">=1.0",
+    "nas_models": ["iDX6011 Pro", "iDX6011", "UGOS-capable NAS"],
+    "architectures": ["arm64", "amd64"],
+    "camera_vendors": ["Hikvision", "Dahua", "Axis", "Uniview", "Reolink", "Eufy", "Generic ONVIF"],
+    "video_formats": ["MP4 (H.264)", "MP4 (H.265/HEVC)", "MKV", "AVI"]
+  },
+  "file_structure": {
+    "skill_root": "watchtower/",
+    "required_files": [
+      "SKILL.md",
+      "README.md",
+      "LICENSE",
+      "pyproject.toml",
+      "watchtower/__init__.py",
+      "watchtower/__main__.py",
+      "watchtower/cli.py",
+      "watchtower/agents/scanner.py",
+      "watchtower/agents/analyzer.py",
+      "watchtower/agents/reporter.py",
+      "watchtower/ugos/confirmation.py",
+      "watchtower/utils/nlp.py",
+      "references/extraction_schema.md",
+      "references/privacy_notice.md",
+      "references/error_handling.md",
+      "references/license_table.md"
+    ],
+    "optional_files": [
+      "watchtower/streaming_html.py",
+      "watchtower/error_handler.py",
+      "tests/test_watchtower.py",
+      "vercel.json",
+      ".gitignore"
+    ]
+  },
+  "install_instructions": [
+    "1. Install via UGOS Skill Hub: search 'Watchtower', click Install",
+    "2. Authorize footage folder: watchtower authorize /mnt/cameras/",
+    "3. Run: watchtower \"analyze last 24 hours\"",
+    "4. Confirm clip extraction and briefing generation when prompted"
+  ],
+  "support": {
+    "documentation": "https://github.com/atenks2026/watchtower#readme",
+    "issues": "https://github.com/atenks2026/watchtower/issues",
+    "email": "founder@ahvo2.local"
+  }
+}

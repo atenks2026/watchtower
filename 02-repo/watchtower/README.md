@@ -79,7 +79,7 @@ watchtower "extract clips for all vehicle detections today"
 
 ### Manual (Development)
 ```bash
-git clone https://github.com/AHVO2/watchtower.git
+git clone https://github.com/atenks2026/watchtower.git
 cd watchtower
 pip install -e .
 # Authorize folder via UGOS
@@ -105,25 +105,21 @@ watchtower/
 │   │   └── reporter.py   # Reporter Agent (Knowledge + Files)
 │   ├── ugos/
 │   │   ├── __init__.py
-│   │   ├── surveillance.py
-│   │   ├── video.py
-│   │   ├── knowledge.py
-│   │   └── files.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── nlp.py        # Natural language parsing
-│       └── confirmation.py # UGOS confirmation gates
-├── references/
-│   ├── extraction_schema.md
-│   ├── prompt_templates.md
-│   ├── privacy_notice.md
-│   ├── error_handling.md
-│   └── license_table.md
+│   │   ├── confirmation.py  # UGOS confirmation gates
+│   │   └── streaming_html.py  # OOM-safe HTML generation
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── nlp.py        # Natural language parsing
+│   │   └── error_handler.py  # 24 error codes, fallback chains
+│   └── references/
+│       ├── extraction_schema.md
+│       ├── prompt_templates.md
+│       ├── privacy_notice.md
+│       ├── error_handling.md
+│       └── license_table.md
 └── tests/
     ├── __init__.py
-    ├── test_scanner.py
-    ├── test_analyzer.py
-    └── test_reporter.py
+    └── test_watchtower.py
 ```
 
 ## 🛠 Development

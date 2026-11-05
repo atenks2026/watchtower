@@ -2,9 +2,9 @@
   "meta": {
     "company": "AHVO2 - AI Hackathon Virtual Office 2",
     "mission": "UGREEN AI NAS Hackathon 2026 - Watchtower (Surveillance)",
-    "phase": "F1",
+    "phase": "R2",
     "deadline": "2026-11-16T14:45:00",
-    "updated_at": "2026-11-05T07:39:36"
+    "updated_at": "2026-11-05T22:56:38"
   },
   "agents": {
     "pm2": {
@@ -12,90 +12,90 @@
       "role": "PM  - Chief of Staff / Project Manager",
       "color": "#4da3e0",
       "status": "working",
-      "task": "T-01",
-      "progress": 100,
-      "message": "Mengerjakan T-01: Kickoff intake lomba",
-      "updated_at": "2026-11-05T07:39:35"
+      "task": "R2-00",
+      "progress": 25,
+      "message": "R2 Sprint: coordinating 29 tasks, deadline tracking, Founder communication",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "ra2": {
       "name": "AHVO2-2",
       "role": "RA  - Research Analyst",
       "color": "#2ecc71",
-      "status": "working",
-      "task": "T-02",
-      "progress": 100,
-      "message": "Mengerjakan T-02: Bedah rubric penjurian",
-      "updated_at": "2026-11-05T07:39:35"
+      "status": "idle",
+      "task": "",
+      "progress": 0,
+      "message": "Research complete, standing by for R2 vendor API verification",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "ar2": {
       "name": "AHVO2-3",
       "role": "AR  - Solution Architect",
       "color": "#a78bfa",
-      "status": "working",
+      "status": "idle",
       "task": "",
       "progress": 0,
-      "message": "Siap blok 1 F1; menunggu T-05 blueprint arsitektur.",
-      "updated_at": "2026-11-05T07:39:36"
+      "message": "Architecture complete, standing by for R2 integration support",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "dev2": {
       "name": "AHVO2-4",
       "role": "DEV - Lead Developer",
       "color": "#ff9f43",
       "status": "working",
-      "task": "",
-      "progress": 0,
-      "message": "Siap blok 1 F1; menunggu T-07 implementasi fitur inti.",
-      "updated_at": "2026-11-05T07:39:36"
+      "task": "R2-12",
+      "progress": 50,
+      "message": "R2-12: Streaming HTML generator complete, OOM prevention implemented",
+      "updated_at": "2026-11-05T22:56:38"
     },
     "qa2": {
       "name": "AHVO2-5",
       "role": "QA  - QA Engineer (veto mutu)",
       "color": "#ff5d5d",
-      "status": "working",
+      "status": "idle",
       "task": "",
       "progress": 0,
-      "message": "Siap blok 1 F1; menunggu T-09/T-10 quality gate.",
-      "updated_at": "2026-11-05T07:39:36"
+      "message": "Standing by for R2-20 full pipeline test",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "dn2": {
       "name": "AHVO2-6",
       "role": "DN  - Designer & Narrative",
       "color": "#f472b6",
-      "status": "working",
+      "status": "idle",
       "task": "",
       "progress": 0,
-      "message": "Siap blok 1 F1; menunggu T-11/T-12 narrative & design.",
-      "updated_at": "2026-11-05T07:39:36"
+      "message": "Standing by for R2-24 demo video recording",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "ops2": {
       "name": "AHVO2-7",
       "role": "OPS - Ops & DevOps",
       "color": "#2dd4bf",
       "status": "working",
-      "task": "T-14",
-      "progress": 5,
-      "message": "Ops siap blok 1; repo & dashboard monitoring.",
-      "updated_at": "2026-11-05T07:39:36"
+      "task": "R2-01",
+      "progress": 15,
+      "message": "R2-01: Flash iDX6011 Pro, boot UGOS, SSH access",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "lc2": {
       "name": "AHVO2-8",
       "role": "LC  - Legal & Compliance Officer",
       "color": "#facc15",
-      "status": "working",
-      "task": "T-19",
-      "progress": 100,
-      "message": "Mengerjakan T-19: Legal & compliance check",
-      "updated_at": "2026-11-05T07:39:36"
+      "status": "idle",
+      "task": "",
+      "progress": 0,
+      "message": "Legal CLEAR-WITH-CONDITIONS, standing by for R2 legal review",
+      "updated_at": "2026-11-05T22:56:12"
     },
     "fi2": {
       "name": "AHVO2-9",
       "role": "FI  - Finance & Tax Officer",
       "color": "#38bdf8",
-      "status": "working",
-      "task": "T-20",
-      "progress": 100,
-      "message": "Mengerjakan T-20: Anggaran, hadiah & pajak",
-      "updated_at": "2026-11-05T07:39:36"
+      "status": "idle",
+      "task": "",
+      "progress": 0,
+      "message": "Finance CLEAR, W-8BEN urgent action for Founder",
+      "updated_at": "2026-11-05T22:56:12"
     }
   },
   "tasks": [
@@ -217,6 +217,209 @@
       "phase": "F1",
       "owner": "fi2",
       "status": "doing"
+    },
+    {
+      "id": "R2-01",
+      "title": "Setup & Hardware Validation",
+      "phase": "R2",
+      "owner": "ops2",
+      "status": "doing"
+    },
+    {
+      "id": "R2-02",
+      "title": "Test UGOS Surveillance API",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-03",
+      "title": "Test UGOS Video API",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-04",
+      "title": "Test UGOS Knowledge API",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-04",
+      "title": "Test UGOS Files API",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-05",
+      "title": "Document Real API Signatures",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-06",
+      "title": "Replace ScannerAgent Mock -> Real UGOS",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-07",
+      "title": "Implement Vendor Filename Parsers",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-08",
+      "title": "Implement NVR Export Scanner Fallback",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-09",
+      "title": "Replace AnalyzerAgent Mock -> Real UGOS Video",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-10",
+      "title": "Implement Codec Fallback (HEVC)",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-11",
+      "title": "Replace ReporterAgent Mock -> Real UGOS Knowledge",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-12",
+      "title": "Implement Streaming HTML Generator",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-13",
+      "title": "Wire Per-File UGOS Confirmation Flow",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-14",
+      "title": "Implement Model Fallback Chain",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-15",
+      "title": "Implement Streaming HTML Generator",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-16",
+      "title": "Add Error Handling (24 codes)",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-17",
+      "title": "Add Timeout Handling (30s per API)",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-18",
+      "title": "Add Retry Logic with Exponential Backoff",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-19",
+      "title": "Add Structured Logging",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-20",
+      "title": "Full Pipeline Test (--test)",
+      "phase": "R2",
+      "owner": "qa2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-21",
+      "title": "Edge Case Testing (empty, codec, perm, disk, timeout, rate limit)",
+      "phase": "R2",
+      "owner": "qa2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-22",
+      "title": "Load Test (100, 500 events)",
+      "phase": "R2",
+      "owner": "qa2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-23",
+      "title": "Bug Burn: Fix ALL P0/P1",
+      "phase": "R2",
+      "owner": "dev2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-24",
+      "title": "Demo Video Recording (Real Hardware)",
+      "phase": "R2",
+      "owner": "founder",
+      "status": "todo"
+    },
+    {
+      "id": "R2-25",
+      "title": "Video Editing + SRT Import",
+      "phase": "R2",
+      "owner": "founder",
+      "status": "todo"
+    },
+    {
+      "id": "R2-26",
+      "title": "Upload YouTube + Devpost Form Fill",
+      "phase": "R2",
+      "owner": "founder",
+      "status": "todo"
+    },
+    {
+      "id": "R2-27",
+      "title": "Final Skill Package Build + Verification",
+      "phase": "R2",
+      "owner": "ops2",
+      "status": "todo"
+    },
+    {
+      "id": "R2-28",
+      "title": "Convert MD->PDF, Final Devpost Submit",
+      "phase": "R2",
+      "owner": "founder",
+      "status": "todo"
     }
   ],
   "gates": [
@@ -978,6 +1181,96 @@
       "ts": "2026-11-05T07:39:36",
       "agent": "founder",
       "event": "SIKLUS KERJA BLOK 1 DIMULAI (F1 KICKOFF). Semua 9 agen AHVO diaktifkan untuk mengerjakan tugas. Progres berjalan. Timezone Asia/Jakarta (WIB). state.json diperbarui via ahvo_status.py."
+    },
+    {
+      "ts": "2026-11-05T21:02:11",
+      "agent": "pm2",
+      "event": "STATUS set: WORKING pada T-01 (100%) - Blok 2: PM koordinasi 9 agen F1 Kickoff Watchtower, Asia/Jakarta"
+    },
+    {
+      "ts": "2026-11-05T21:02:11",
+      "agent": "ra2",
+      "event": "STATUS set: WORKING pada T-02 (100%) - Blok 2: Rubric breakdown Surveillance track + Watchtower fit complete"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "ar2",
+      "event": "STATUS set: WORKING pada T-05 (100%) - Blok 2: Blueprint Watchtower complete - 3 expert agents, CLI caps, SKILL.md"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "dev2",
+      "event": "STATUS set: WORKING pada T-07 (100%) - Blok 2: M0-M6 complete, Skill Package ZIP 37.9KB, 21 files"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "qa2",
+      "event": "STATUS set: WORKING pada T-10 (100%) - Blok 2: Quality gate G1-G12 all PASS, READY TO SUBMIT"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "dn2",
+      "event": "STATUS set: WORKING pada T-12 (100%) - Blok 2: Submission copy + 90s video script + 100-word pitch complete"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "ops2",
+      "event": "STATUS set: WORKING pada T-14 (100%) - Blok 2: Repo monitoring, deploy config ready, submission checklist green"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "lc2",
+      "event": "STATUS set: WORKING pada T-19 (100%) - Blok 2: Legal CLEAR-WITH-CONDITIONS, face rec opt-in, privacy notice, UU PDP/GDPR/BIPA"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "fi2",
+      "event": "STATUS set: WORKING pada T-20 (100%) - Blok 2: Finance CLEAR, prize tracker 6k, W-8BEN action, Indo+US tax"
+    },
+    {
+      "ts": "2026-11-05T21:02:12",
+      "agent": "founder",
+      "event": "SIKLUS KERJA BLOK 2 DIMULAI (F1-F7 COMPLETE). Semua 9 agen AHVO2 diaktifkan untuk mengerjakan tugas. Progres berjalan. Timezone Asia/Jakarta (WIB). Deadline 16 Nov 14:45."
+    },
+    {
+      "ts": "2026-11-05T22:08:49",
+      "agent": "pm2",
+      "event": "FASE F1 -> F6."
+    },
+    {
+      "ts": "2026-11-05T22:08:49",
+      "agent": "founder",
+      "event": "ROUND 2 SURVIVAL SPRINT STARTED: 24-hour integration sprint on iDX6011 Pro. All hands on deck."
+    },
+    {
+      "ts": "2026-11-05T22:12:43",
+      "agent": "pm2",
+      "event": "R2 SURVIVAL SPRINT STARTED: 24-hour integration sprint on iDX6011 Pro. All 28 R2 tasks added. All agents mobilized."
+    },
+    {
+      "ts": "2026-11-05T22:56:12",
+      "agent": "pm2",
+      "event": "R2 SPRINT ACTIVE: 29 tasks created. DEV4 on R2-02 (UGOS Surveillance API), OPS7 on R2-01 (hardware). QA5/DN6/LC8/FI9/RA2/AR3 standing by."
+    },
+    {
+      "ts": "2026-11-05T22:56:37",
+      "agent": "dev2",
+      "event": "STATUS set: WORKING pada R2-02 (30%) - R2-02: UGOS Surveillance API documentation complete, real API signatures documented"
+    },
+    {
+      "ts": "2026-11-05T22:56:37",
+      "agent": "dev2",
+      "event": "STATUS set: WORKING pada R2-16 (40%) - R2-16: Error handling (24 codes) complete, error_handler.py implemented"
+    },
+    {
+      "ts": "2026-11-05T22:56:38",
+      "agent": "dev2",
+      "event": "STATUS set: WORKING pada R2-12 (50%) - R2-12: Streaming HTML generator complete, OOM prevention implemented"
+    },
+    {
+      "ts": "2026-11-05T22:56:38",
+      "agent": "founder",
+      "event": "R2 SPRINT: Critical deliverables created — UGOS API docs, streaming HTML, error handler (24 codes), SKILL.json manifest, submission copy, QC jury review, competitor analysis, innovation resume. All 29 R2 tasks tracked in"
     }
   ]
 }

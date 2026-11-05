@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:05,000
+You have cameras. But who's watching the footage?
+
+2
+00:00:05,000 --> 00:00:10,000
+Meet Watchtower. Natural language query. Cross-camera. No complex setup.
+
+3
+00:00:10,000 --> 00:00:25,000
+Instant event list. Timestamp. Camera. Confidence. Filterable by person, vehicle, time, camera.
+
+4
+00:00:25,000 --> 00:00:45,000
+One command extracts clips around every event. ±30 seconds. Batch approval. Ready to review.
+
+5
+00:00:45,000 --> 00:01:15,000
+AI-generated briefing. Executive summary. Visual timeline. Playable clips. Threat levels. Recommendations. All local. No cloud.
+
+6
+00:01:15,000 --> 00:01:30,000
+Watchtower. AI that watches so you don't have to. On UGREEN Skills Hub soon.
