@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHVO2 - Mission Control</title>
+<style>
+  :root{
+    --bg:#0b1622; --panel:#122031; --panel2:#0e1a29; --line:#22374d;
+    --tx:#e8f0f8; --tx2:#8fa6bc; --acc:#4da3e0; --acc2:#2d7ab3;
+    --working:#2ecc71; --idle:#f5b940; --done:#4da3e0; --blocked:#ff5d5d; --offline:#7b8a99;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:radial-gradient(1200px 500px at 70% -10%, #14304b 0%, var(--bg) 55%);
+    color:var(--tx); min-height:100vh;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;
+    font-size:14px; padding-bottom:52px;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:16px 20px}
+
+  /* ---------- header ---------- */
+  header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:40px;height:40px;border-radius:10px;flex:none;
+    background:linear-gradient(135deg,var(--acc2),#1a4a7a);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:12px;letter-spacing:.5px;color:#fff}
+  .brand h1{font-size:17px;letter-spacing:1.5px}
+  .brand .sub{font-size:11.5px;color:var(--tx2);margin-top:2px}
+  .hdr-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    padding:7px 12px;text-align:center;min-width:86px}
+  .chip .lbl{font-size:9.5px;letter-spacing:1px;color:var(--tx2);text-transform:uppercase}
+  .chip .val{font-size:14px;font-weight:700;margin-top:2px}
+  #clock{font-variant-numeric:tabular-nums}
+  .phase{color:var(--acc)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+  .live .dot{background:var(--working);box-shadow:0 0 0 0 rgba(46,204,112,.6);animation:pulse 1.6s infinite}
+  .stale .dot{background:var(--idle)}
+  .nodata .dot{background:var(--offline)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,112,.55)}70%{box-shadow:0 0 0 7px rgba(46,204,112,0)}100%{box-shadow:0 0 0 0 rgba(46,204,112,0)}}
+
+  /* ---------- KPI ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .kpi .n{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums}
+  .kpi .t{font-size:10.5px;letter-spacing:.8px;color:var(--tx2);text-transform:uppercase;margin-top:3px}
+  .bar{height:5px;border-radius:3px;background:#1b2f44;margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+
+  /* ---------- sections ---------- */
+  h2.sec{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--tx2);
+    margin:22px 2px 10px;display:flex;align-items:center;gap:10px}
+  h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- agent cards ---------- */
+  .agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:11px}
+  .card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--offline);
+    border-radius:11px;padding:12px 14px}
+  .card .top{display:flex;align-items:center;gap:10px}
+  .ava{width:37px;height:37px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:12.5px;color:#0b1622}
+  .card .nm{font-weight:800;font-size:14.5px}
+  .card .rl{font-size:11px;color:var(--tx2);margin-top:1px}
+  .badge{margin-left:auto;font-size:9.5px;font-weight:800;letter-spacing:.8px;padding:4px 9px;border-radius:20px;white-space:nowrap}
+  .b-working{background:rgba(46,204,112,.14);color:var(--working)}
+  .b-idle{background:rgba(245,185,64,.14);color:var(--idle)}
+  .b-done{background:rgba(77,163,224,.14);color:var(--done)}
+  .b-blocked{background:rgba(255,93,93,.16);color:var(--blocked)}
+  .b-offline{background:rgba(123,138,153,.16);color:var(--offline)}
+  .card .task{margin-top:10px;font-size:12.5px;color:var(--tx)}
+  .card .msg{margin-top:6px;font-size:12px;color:var(--tx2);line-height:1.45;min-height:17px}
+  .card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;
+    font-size:10.5px;color:var(--tx2)}
+  .pbar{height:5px;border-radius:3px;background:#1b2f44;margin-top:8px;overflow:hidden}
+  .pbar i{display:block;height:100%;border-radius:3px;transition:width .5s}
+  .age-ok{color:var(--tx2)} .age-warn{color:var(--idle)} .age-late{color:var(--blocked)}
+
+  /* ---------- lower: board + gates + log ---------- */
+  .lower{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:12px;margin-top:2px}
+  @media (max-width:980px){.lower{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+  .panel h3{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--tx2);margin-bottom:10px}
+
+  .board{display:grid;grid-template-columns:repeat(5,minmax(128px,1fr));gap:8px;overflow-x:auto}
+  @media (max-width:700px){.board{grid-template-columns:repeat(5,140px)}}
+  .bcol{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px;min-height:120px}
+  .bcol .bt{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--tx2);margin-bottom:8px;display:flex;justify-content:space-between}
+  .bcol .bt b{color:var(--tx)}
+  .tcard{background:var(--panel);border:1px solid var(--line);border-radius:7px;
+    padding:7px 8px;margin-bottom:7px;font-size:11.5px}
+  .tcard .tid{font-weight:800;font-size:10.5px;letter-spacing:.4px}
+  .tcard .tt{color:var(--tx2);margin-top:2px;line-height:1.35}
+  .tcard .to{margin-top:5px;font-size:10px;color:var(--tx2);display:flex;justify-content:space-between}
+  .own{font-weight:700;text-transform:uppercase}
+
+  .gates .g{display:flex;align-items:center;gap:9px;padding:6px 2px;border-bottom:1px dashed #1c3046;font-size:12px}
+  .gates .g:last-child{border-bottom:none}
+  .gates .gid{width:30px;font-weight:800;font-size:10.5px;color:var(--tx2);flex:none}
+  .gates .gn{flex:1;line-height:1.35}
+  .gchip{font-size:9px;font-weight:800;letter-spacing:.8px;padding:3px 8px;border-radius:14px;flex:none}
+  .g-pass{background:rgba(46,204,112,.15);color:var(--working)}
+  .g-fail{background:rgba(255,93,93,.16);color:var(--blocked)}
+  .g-pending{background:rgba(123,138,153,.16);color:var(--offline)}
+
+  .logpanel .logs{max-height:372px;overflow-y:auto}
+  .lg{display:flex;gap:8px;padding:5.5px 2px;border-bottom:1px dashed #1c3046;font-size:11.8px;line-height:1.4}
+  .lg:last-child{border-bottom:none}
+  .lg .ts{color:var(--tx2);font-variant-numeric:tabular-nums;flex:none;font-size:10.5px;padding-top:1px}
+  .lg .an{font-weight:800;flex:none;width:58px;font-size:10.5px;letter-spacing:.4px;padding-top:1px}
+  .lg .ev{color:var(--tx)}
+
+  /* ---------- footer / fallback ---------- */
+  footer{position:fixed;bottom:0;left:0;right:0;background:rgba(11,22,34,.94);border-top:1px solid var(--line);
+    padding:8px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;
+    font-size:11px;color:var(--tx2);flex-wrap:wrap;z-index:20}
+  footer button{background:#16283c;border:1px solid var(--line);color:var(--tx);border-radius:7px;
+    padding:5px 11px;font-size:11px;cursor:pointer}
+  footer button:hover{border-color:var(--acc);color:var(--acc)}
+  #overlay{position:fixed;inset:0;background:rgba(7,14,22,.9);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+  #overlay .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:560px;padding:26px 28px}
+  #overlay h3{font-size:16px;margin-bottom:10px}
+  #overlay p{color:var(--tx2);font-size:12.5px;line-height:1.6;margin-bottom:8px}
+  #overlay code{background:#1b2f44;border-radius:5px;padding:2px 7px;font-size:12px;color:var(--acc)}
+  #overlay .row{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+  #overlay button{background:var(--acc2);border:none;color:#fff;border-radius:8px;padding:9px 15px;
+    font-size:12.5px;font-weight:700;cursor:pointer}
+  #overlay button.ghost{background:transparent;border:1px solid var(--line);color:var(--tx)}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">AHVO2</div>
+      <div>
+        <h1>AHVO2 — MISSION CONTROL</h1>
+        <div class="sub" id="mission">Memuat data kantor…</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="chip"><div class="lbl">Fase</div><div class="val phase" id="phase">—</div></div>
+      <div class="chip"><div class="lbl">Sisa Waktu</div><div class="val" id="clock">—</div></div>
+      <div class="chip"><div class="lbl">Status Data</div><div class="val" id="fresh"><span class="dot"></span>—</div></div>
+      <div class="chip"><div class="lbl">Jam Kantor</div><div class="val" id="wall">—</div></div>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="k-ag">—</div><div class="t">Agen Bekerja</div><div class="bar"><i id="k-ag-b"></i></div></div>
+    <div class="kpi"><div class="n" id="k-done">—</div><div class="t">Tugas Selesai</div><div class="bar"><i id="k-done-b"></i></div></div>
+    <div class="kpi"><div class="n" id="k-run">—</div><div class="t">Sedang Berjalan</div></div>
+    <div class="kpi"><div class="n" id="k-blk">—</div><div class="t">Terblokir</div></div>
+    <div class="kpi"><div class="n" id="k-gate">—</div><div class="t">Gerbang Mutu PASS</div><div class="bar"><i id="k-gate-b"></i></div></div>
+    <div class="kpi"><div class="n" id="k-prog">—</div><div class="t">Progres Total</div><div class="bar"><i id="k-prog-b"></i></div></div>
+  </div>
+
+  <h2 class="sec">Karyawan AI — Status Real-Time</h2>
+  <div class="agents" id="agents"></div>
+
+  <div class="lower" id="lower" style="margin-top:22px">
+    <div class="panel" id="board-panel">
+      <h3>Papan Tugas — Fase Lomba</h3>
+      <div class="board" id="board"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div class="panel gates">
+        <h3>Gerbang Mutu (Quality Gates)</h3>
+        <div id="gates"></div>
+      </div>
+      <div class="panel logpanel">
+        <h3>Log Aktivitas Kantor</h3>
+        <div class="logs" id="logs"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div id="src">Sumber data: state.json &bull; penyegaran otomatis tiap 5 detik</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button onclick="pickFile()">Muat state.json manual</button>
+    <button onclick="startDemo()">Mode Demo</button>
+    <input type="file" id="fp" accept=".json" class="hidden">
+  </div>
+</footer>
+
+<div id="overlay" class="hidden">
+  <div class="box">
+    <h3>Belum ada data dashboard</h3>
+    <p>Dashboard membaca file <code>state.json</code> di folder yang sama. Bila dibuka langsung
+       dari file (tanpa server), browser memblokir pembacaan file itu demi keamanan.</p>
+    <p>Pilih salah satu:
+       <b>(1)</b> jalankan <code>python ahvo_serve.py</code> lalu buka
+       <code>http://localhost:8018</code> — cara yang dianjurkan, atau
+       <b>(2)</b> muat file <code>state.json</code> secara manual di bawah, atau
+       <b>(3)</b> lihat dulu <b>Mode Demo</b> berisi contoh data kantor.</p>
+    <div class="row">
+      <button onclick="startDemo()">Lihat Mode Demo</button>
+      <button class="ghost" onclick="pickFile()">Muat state.json manual</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============ konfigurasi ============ */
+var REFRESH_MS = 5000, LIVE_S = 120, WARN_MIN = 30, LATE_MIN = 60;
+var ST_LABEL = {working:"BEKERJA", idle:"SIAGA (IDLE)", done:"SELESAI", blocked:"TERBLOKIR", offline:"OFFLINE"};
+var ST_COLOR = {working:"var(--working)", idle:"var(--idle)", done:"var(--done)", blocked:"var(--blocked)", offline:"var(--offline)"};
+var TASK_COL = [["todo","Antrean"],["doing","Sedang Dikerjakan"],["review","Menunggu Review"],["done","Selesai"],["blocked","Terblokir"]];
+var AGENTS_ORDER = ["pm2","ra2","ar2","dev2","qa2","dn2","ops2","lc2","fi2"];
+var mode = "none", lastState = null, pollTimer = null, demoTimer = null;
+
+/* ============ util ============ */
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">")}
+function pad(n){return (n<10?"0":"")+n}
+function parseLoc(s){ if(!s) return null; var d=new Date(s); return isNaN(d)?null:d; }
+function hhmm(d){return pad(d.getHours())+":"+pad(d.getMinutes())}
+function ageMin(d){return d? (Date.now()-d.getTime())/60000 : null}
+function ageTxt(d){
+  var m=ageMin(d); if(m==null) return "tanpa waktu";
+  if(m<1) return "baru saja"; if(m<60) return Math.round(m)+" mnt lalu";
+  var h=Math.floor(m/60); return h+" jam "+(Math.round(m%60))+" m lalu";
+}
+function ageCls(d){var m=ageMin(d); if(m==null)return "age-ok"; if(m>=LATE_MIN)return "age-late"; if(m>=WARN_MIN)return "age-warn"; return "age-ok"}
+function initials(name){var p=String(name||"?").split(/[\s_-]+/); return (p.length>1?p[0][0]+p[1][0]:String(name||"?").slice(0,2)).toUpperCase()}
+function progressOf(t){ if(!t) return 0; return {done:100,review:90,doing:50,blocked:25,todo:0}[t]||0 }
+
+/* ============ muat data ============ */
+function fetchState(){
+  return fetch("state.json?t="+Date.now(),{cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function beginPoll(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(function(){
+    fetchState().then(function(st){ mode="live"; lastState=st; render(st); setFresh(); })
+      .catch(function(){ if(lastState){ setFresh(true); } });
+  }, REFRESH_MS);
+}
+function startDemo(){
+  mode="demo"; if($("overlay")) $("overlay").classList.add("hidden");
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null}
+  lastState = demoState(); render(lastState);
+  if(demoTimer) clearInterval(demoTimer);
+  demoTimer = setInterval(function(){ lastState = demoState(); render(lastState); }, 30000);
+  $("src").innerHTML = "MODE DEMO &bull; data contoh, bukan kantor sungguhan &bull; jalankan <b>python ahvo_serve.py</b> untuk data nyata";
+}
+function pickFile(){ $("fp").click() }
+document.addEventListener("DOMContentLoaded",function(){
+  $("fp").addEventListener("change",function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(){ try{ lastState=JSON.parse(rd.result); mode="manual";
+        if($("overlay")) $("overlay").classList.add("hidden");
+        render(lastState); $("src").textContent="Sumber data: "+f.name+" (manual, tanpa auto-refresh)";
+      }catch(err){ alert("File bukan JSON yang sah: "+err.message) } };
+    rd.readAsText(f);
+  });
+  fetchState().then(function(st){ mode="live"; lastState=st; $("overlay").classList.add("hidden"); render(st); setFresh(); beginPoll(); })
+    .catch(function(){ $("overlay").classList.remove("hidden"); });
+});
+
+/* ============ indikator kesegaran ============ */
+function setFresh(disconnected){
+  var el=$("fresh"), up=parseLoc(lastState&&lastState.meta&&lastState.meta.updated_at);
+  var m = up? ageMin(up):null;
+  var cls = disconnected?"stale":(m==null?"nodata":(m<=(LIVE_S/60)?"live":"stale"));
+  el.className="val "+cls;
+  el.innerHTML='<span class="dot"></span>'+(disconnected?"PUTUS":(cls==="live"?"LIVE":"STALE"));
+  if(cls==="stale"&&m!=null){ el.title="Data terakhir "+Math.round(m)+" menit lalu. Agen belum menulis state.json - ingatkan lewat ahvo_status.py."; }
+  else { el.title=""; }
+}
+
+/* ============ render ============ */
+function render(st){
+  if(!st||!st.meta) return;
+  var meta=st.meta, agents=st.agents||{}, tasks=st.tasks||[], gates=st.gates||[], log=st.log||[];
+  $("mission").textContent = (meta.mission||"[isi nama lomba: python ahvo_status.py mission ...]")
+    + (meta.company? "  -  "+meta.company : "");
+
+  /* fase + deadline */
+  $("phase").textContent = meta.phase||"—";
+  var dl = parseLoc(meta.deadline);
+  if(dl){ tickClock(dl); } else { $("clock").textContent="—"; $("clock").title="Isi deadline: python ahvo_status.py deadline \"2026-11-16 14:45\""; }
+
+  /* KPI */
+  var list = AGENTS_ORDER.map(function(k){ return Object.assign({key:k}, agents[k]||{name:k,status:"offline"}) });
+  var nWork = list.filter(function(a){return a.status==="working"}).length;
+  var nDone = tasks.filter(function(t){return t.status==="done"}).length;
+  var nRun  = tasks.filter(function(t){return t.status==="doing"}).length;
+  var nBlk  = tasks.filter(function(t){return t.status==="blocked"}).length
+            + list.filter(function(a){return a.status==="blocked"}).length;
+  var nGate = gates.filter(function(g){return g.status==="pass"}).length;
+  var prog  = tasks.length? Math.round(tasks.reduce(function(s,t){return s+progressOf(t.status)},0)/tasks.length):0;
+  $("k-ag").textContent  = nWork+"/"+list.length;
+  $("k-ag-b").style.width = (nWork/list.length*100)+"%";
+  $("k-done").textContent= nDone+"/"+tasks.length;
+  $("k-done-b").style.width=(tasks.length?nDone/tasks.length*100:0)+"%";
+  $("k-run").textContent = nRun;
+  $("k-blk").textContent = nBlk; $("k-blk").style.color = nBlk? "var(--blocked)":"var(--tx)";
+  $("k-gate").textContent= nGate+"/"+gates.length;
+  $("k-gate-b").style.width=(gates.length?nGate/gates.length*100:0)+"%";
+  $("k-prog").textContent= prog+"%"; $("k-prog-b").style.width=prog+"%";
+
+  /* kartu agen */
+  $("agents").innerHTML = list.map(function(a){
+    var stt=a.status||"offline";
+    var prg = (typeof a.progress==="number"? Math.max(0,Math.min(100,a.progress)) : (stt==="done"?100:0));
+    return '<div class="card" style="border-left-color:'+ST_COLOR[stt]+'">'
+      +'<div class="top">'
+      +  '<div class="ava" style="background:'+(a.color||"#4da3e0")+'">'+esc(initials(a.name))+'</div>'
+      +  '<div><div class="nm">'+esc(a.name||a.key)+'</div><div class="rl">'+esc(a.role||"")+'</div></div>'
+      +  '<span class="badge b-'+stt+'">'+(ST_LABEL[stt]||stt.toUpperCase())+'</span>'
+      +'</div>'
+      +'<div class="task">'+(a.task? '<b>'+esc(a.task)+'</b> — '+esc(taskTitle(tasks,a.task)) : '<span style="color:var(--tx2)">tidak ada tugas aktif</span>')+'</div>'
+      +'<div class="msg">'+esc(a.message||"")+'</div>'
+      +'<div class="pbar"><i style="width:'+prg+'%;background:'+ST_COLOR[stt]+'"></i></div>'
+      +'<div class="foot"><span>progres '+prg+'%</span>'
+      +  '<span class="'+ageCls(parseLoc(a.updated_at))+'">diperbarui '+esc(ageTxt(parseLoc(a.updated_at)))+'</span></div>'
+      +'</div>';
+  }).join("");
+
+  /* papan tugas */
+  $("board").innerHTML = TASK_COL.map(function(col){
+    var items = tasks.filter(function(t){return (t.status||"todo")===col[0]});
+    return '<div class="bcol"><div class="bt"><span>'+col[1]+'</span><b>'+items.length+'</b></div>'
+      + items.map(function(t){
+          var ow = agents[t.owner];
+          return '<div class="tcard"><div class="tid" style="color:'+((ow&&ow.color)||"var(--acc)")+'">'+esc(t.id)+'</div>'
+            +'<div class="tt">'+esc(t.title)+'</div>'
+            +'<div class="to"><span class="own">'+esc(t.owner||"—")+'</span><span>'+esc(t.phase||"")+'</span></div></div>';
+        }).join("") + '</div>';
+  }).join("");
+
+  /* gerbang mutu */
+  $("gates").innerHTML = gates.length? gates.map(function(g){
+    var c = g.status==="pass"?"g-pass":(g.status==="fail"?"g-fail":"g-pending");
+    var l = g.status==="pass"?"PASS":(g.status==="fail"?"FAIL":"MENUNGGU");
+    return '<div class="g"><span class="gid">'+esc(g.id||"")+'</span><span class="gn">'+esc(g.name||"")
+      +(g.note? ' <span style="color:var(--tx2)">- '+esc(g.note)+'</span>':'')+'</span>'
+      +'<span class="gchip '+c+'">'+l+'</span></div>';
+  }).join("") : '<div style="color:var(--tx2);font-size:12px">Belum ada data gerbang mutu.</div>';
+
+  /* log */
+  var logs = log.slice().sort(function(a,b){ return (b.ts||"").localeCompare(a.ts||"") }).slice(0,60);
+  $("logs").innerHTML = logs.length? logs.map(function(e){
+    var ag = agents[e.agent]||{};
+    var d = parseLoc(e.ts);
+    return '<div class="lg"><span class="ts">'+(d?hhmm(d):"--:--")+'</span>'
+      +'<span class="an" style="color:'+(ag.color||"var(--acc)")+'">'+esc((e.agent||"founder").toUpperCase())+'</span>'
+      +'<span class="ev">'+esc(e.event||"")+'</span></div>';
+  }).join("") : '<div style="color:var(--tx2);font-size:12px">Belum ada aktivitas tercatat.</div>';
+}
+
+function taskTitle(tasks,id){
+  for(var i=0;i<tasks.length;i++){ if(tasks[i].id===id) return tasks[i].title||""; }
+  return "";
+}
+function tickClock(dl){
+  var el=$("clock");
+  function upd(){
+    var diff = dl - new Date();
+    if(diff<=0){ el.textContent="LEWAT"; el.style.color="var(--blocked)"; return; }
+    var h=Math.floor(diff/3600000), m=Math.floor(diff%3600000/60000), s=Math.floor(diff%60000/1000);
+    el.textContent = (h>99? h+" jam" : pad(h)+":"+pad(m)+":"+pad(s));
+    el.style.color = h<6? "var(--blocked)" : (h<24? "var(--idle)":"var(--tx)");
+    el.title="Deadline: "+dl.toLocaleString();
+  }
+  upd();
+  if(window.__ck) clearInterval(window.__ck); window.__ck=setInterval(upd,1000);
+}
+setInterval(function(){ var n=new Date(); $("wall").textContent = hhmm(n)+":"+pad(n.getSeconds()); },1000);
+
+/* ============ data demo (untuk preview / latihan) ============ */
+function demoState(){
+  var now = Date.now(), iso = function(minAgo){ return new Date(now - minAgo*60000).toISOString() };
+  var inFuture = new Date(now + (19*60+12)*60000).toISOString(); // ~19 jam demo
+  function ag(name,role,color,status,task,progress,message,upd){
+    return {name:name,role:role,color:color,status:status,task:task,progress:progress,message:message,updated_at:iso(upd)};
+  }
+  return {
+    meta:{company:"AHVO2 - AI Hackathon Virtual Office 2",mission:"[DEMO] UGREEN AI NAS Hackathon 2026",phase:"F2",
+          deadline:inFuture,updated_at:iso(0.2)},
+    agents:{
+      pm2: ag("AHVO2-1","PM - Chief of Staff / Project Manager","#4da3e0","working","T-01",30,"Kickoff intake UGREEN; rules brief disusun, legal & finance gates dipasang.",3),
+      ra2: ag("AHVO2-2","RA - Research Analyst","#2ecc71","working","T-02",45,"Mengekstrak rubric UGREEN: User Value, Innovation, Technical Quality, AI NAS Fit.",1),
+      ar2: ag("AHVO2-3","AR - Solution Architect","#a78bfa","idle","",0,"Menunggu rules brief & rubric selesai sebelum blueprint.",95),
+      dev2:ag("AHVO2-4","DEV - Lead Developer","#ff9f43","offline","",0,"Belum diaktifkan - menunggu ide terkunci & blueprint.",24),
+      qa2: ag("AHVO2-5","QA - QA Engineer (veto mutu)","#ff5d5d","offline","",0,"Standby - gerbang mutu G1-G12 disiapkan.",12),
+      dn2: ag("AHVO2-6","DN - Designer & Narrative","#f472b6","offline","",0,"Standby - story sheet & demo script nanti.",24),
+      ops2:ag("AHVO2-7","OPS - Ops & DevOps","#2dd4bf","working","",0,"Setup repo template, deploy hello-world, dashboard server.",8),
+      lc2: ag("AHVO2-8","LC - Legal & Compliance","#facc15","idle","",0,"Menunggu ToS UGREEN dari RA untuk T-19.",210),
+      fi2: ag("AHVO2-9","FI - Finance & Tax","#38bdf8","idle","",0,"Menunggu prize data dari RA untuk T-20.",12)
+    },
+    tasks:[
+      {id:"T-01",title:"Kickoff intake lomba",phase:"F1",owner:"pm2",status:"doing"},
+      {id:"T-02",title:"Bedah rubric penjurian UGREEN",phase:"F1",owner:"ra2",status:"doing"},
+      {id:"T-03",title:"Generate 10 ide UGOS Skill",phase:"F2",owner:"ra2",status:"todo"},
+      {id:"T-04",title:"Kartu skor + kunci ide",phase:"F2",owner:"pm2",status:"todo"},
+      {id:"T-05",title:"Blueprint arsitektur UGOS Skill",phase:"F3",owner:"ar2",status:"todo"},
+      {id:"T-06",title:"Pecah jadi papan tugas",phase:"F3",owner:"pm2",status:"todo"},
+      {id:"T-07",title:"Implementasi fitur inti",phase:"F4",owner:"dev2",status:"todo"},
+      {id:"T-08",title:"Perbaikan bug temuan QA",phase:"F4",owner:"dev2",status:"todo"},
+      {id:"T-09",title:"Test plan + review diff",phase:"F4",owner:"qa2",status:"todo"},
+      {id:"T-10",title:"Quality gate 12 butir",phase:"F5",owner:"qa2",status:"todo"},
+      {id:"T-11",title:"Generator README",phase:"F4",owner:"dev2",status:"todo"},
+      {id:"T-12",title:"Copy submission",phase:"F4",owner:"dn2",status:"todo"},
+      {id:"T-13",title:"Script video 90 detik",phase:"F5",owner:"dn2",status:"todo"},
+      {id:"T-14",title:"Pitch 100 kata",phase:"F5",owner:"dn2",status:"todo"},
+      {id:"T-15",title:"Post-mortem",phase:"F7",owner:"pm2",status:"todo"},
+      {id:"T-19",title:"Legal & compliance check",phase:"F2",owner:"lc2",status:"todo"},
+      {id:"T-20",title:"Anggaran, hadiah & pajak",phase:"F1",owner:"fi2",status:"todo"}
+    ],
+    gates:[
+      {id:"G1",name:"Demo path jalan 2x berturut-turut",status:"pending"},
+      {id:"G2",name:"Muat di bawah 5 detik",status:"pending"},
+      {id:"G3",name:"Tanpa 404 / error konsol / placeholder",status:"pending"},
+      {id:"G4",name:"Pesan error manusiawi",status:"pending"},
+      {id:"G5",name:"Tampilan perangkat juri aman",status:"pending"},
+      {id:"G6",name:"README lengkap (what/run/screenshots)",status:"pending"},
+      {id:"G7",name:"Repo bebas rahasia",status:"pending"},
+      {id:"G8",name:"Form submission terisi penuh",status:"pending"},
+      {id:"G9",name:"Video durasi + audio oke",status:"pending"},
+      {id:"G10",name:"Lisensi + atribusi rapi",status:"pending"},
+      {id:"G11",name:"Checklist legal AHVO2-8 lolos (ToS, lisensi, privasi)",status:"pending"},
+      {id:"G12",name:"Register biaya & bukti pajak terarsip AHVO2-9",status:"pending"}
+    ],
+    log:[
+      {ts:iso(0.5), agent:"pm2",  event:"AHVO2 online. 9 agents ready. Target hari ini: Kickoff UGREEN AI NAS Hackathon 2026."},
+      {ts:iso(1),   agent:"ops2", event:"Setup repo template + deploy hello-world Vercel. URL live verified."},
+      {ts:iso(2),   agent:"ops2", event:"Dashboard server started on port 8018. state.json initialized."},
+      {ts:iso(3),   agent:"ra2",  event:"Started T-02: extracting UGREEN rules, rubric, eligibility, ToS links."},
+      {ts:iso(4),   agent:"pm2",  event:"T-01 started: master plan F0-F7 built, T-19/T-20 gates scheduled."}
+    ]
+  };
+}
+</script>
+</body>
+</html>

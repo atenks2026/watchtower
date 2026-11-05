@@ -1,0 +1,56 @@
+{
+  "models": [
+    {
+      "name": "nvidia/nemotron-3-ultra-550b-a55b",
+      "description": "Frontier class MoE - heavy reasoning, architecture, complex code",
+      "tier": "primary",
+      "provider": "nvidia_nim"
+    },
+    {
+      "name": "nvidia/nemotron-3.5-super-vl-120b-a12b",
+      "description": "Multimodal + general - UI screenshot review, mockup reading",
+      "tier": "secondary",
+      "provider": "nvidia_nim"
+    },
+    {
+      "name": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "description": "Fast model - bulk scanning, formatting, long-running agents",
+      "tier": "tertiary",
+      "provider": "nvidia_nim"
+    },
+    {
+      "name": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "description": "Previous gen - light coding fallback when main model rate limited",
+      "tier": "fallback",
+      "provider": "nvidia_nim"
+    },
+    {
+      "name": "meta-llama/llama-3.1-70b-instruct",
+      "description": "OpenRouter free fallback - strong reasoning",
+      "tier": "fallback",
+      "provider": "openrouter"
+    },
+    {
+      "name": "google/gemini-flash-1.5",
+      "description": "OpenRouter free fallback - fast, large context",
+      "tier": "fallback",
+      "provider": "openrouter"
+    },
+    {
+      "name": "nemotron-3-ultra",
+      "description": "Local Ollama fallback - full privacy, no rate limits",
+      "tier": "last_resort",
+      "provider": "ollama"
+    }
+  ],
+  "router_rules": {
+    "heavy_reasoning": ["nvidia/nemotron-3-ultra-550b-a55b", "nvidia/nemotron-3.5-super-vl-120b-a12b"],
+    "coding": ["nvidia/nemotron-3-ultra-550b-a55b", "nvidia/nemotron-3.5-super-vl-120b-a12b", "nvidia/llama-3.3-nemotron-super-49b-v1.5"],
+    "bulk_research": ["nvidia/nemotron-3.5-lightning-30b-a3b", "meta-llama/llama-3.1-70b-instruct"],
+    "formatting": ["nvidia/nemotron-3.5-lightning-30b-a3b", "google/gemini-flash-1.5"]
+  },
+  "nim_endpoint": "https://integrate.api.nvidia.com/v1",
+  "openrouter_endpoint": "https://openrouter.ai/api/v1",
+  "ollama_endpoint": "http://localhost:11434/v1",
+  "notes": "Verifikasi nama model di awal setiap lomba via GET /v1/models. Nama berubah cepat. AHVO2-2 wajib cek dan update file ini."
+}

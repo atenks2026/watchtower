@@ -1,0 +1,17 @@
+{
+  "buildCommand": "pip install -e . && python -c \"import watchtower; print('Build OK')\"",
+  "outputDirectory": ".",
+  "devCommand": "python -m watchtower --help",
+  "installCommand": "pip install -e .",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "env": {
+    "PYTHONPATH": "/var/task",
+    "UGOS_MODE": "simulation"
+  }
+}
