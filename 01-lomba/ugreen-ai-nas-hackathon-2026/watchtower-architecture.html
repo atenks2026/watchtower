@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchtower — Arsitektur & Alur Inovasi</title>
+<style>
+  :root{
+    --bg:#0b1120; --panel:#121a2e; --panel2:#0f1724; --line:#1e293b;
+    --tx:#e2e8f0; --tx2:#94a3b8; --acc:#38bdf8; --acc2:#2563eb;
+    --working:#22c55e; --idle:#f59e0b; --done:#38bdf8; --blocked:#ef4444;
+    --accent-glow: rgba(59,130,246,0.4);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#050714;
+    color:var(--tx);
+    font-family:'Segoe UI',Roboto,"Helvetica Neue",Arial,sans-serif;
+    min-height:100vh; padding:24px;
+  }
+  .container{max-width:1400px;margin:0 auto;}
+  header{text-align:center;margin-bottom:40px}
+  h1{font-size:2.5rem;letter-spacing:-1px;margin-bottom:8px;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .subtitle{color:var(--tx2);font-size:1.1rem}
+  /* Hero Diagram */
+  .diagram{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:32px;margin-bottom:40px;position:relative;overflow:hidden}
+  .diagram::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#38bdf8,#818cf8,#38bdf8)}
+  .diagram h2{font-size:1.3rem;color:var(--tx);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+  .diagram h2 .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+  .flow{display:flex;flex-direction:column;gap:34px;align-items:center}
+  .stage{display:flex;align-items:center;gap:28px;position:relative;width:100%;max-width:1100px}
+  .stage:not(:last-child)::after{content:'';position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:1px;height:60px;background:linear-gradient(to bottom,var(--line),transparent)}
+  .agent-card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:22px;min-width:260px;position:relative;z-index:2;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+  .agent-card:hover{border-color:var(--acc);box-shadow:0 12px 32px var(--accent-glow)}
+  .card-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .badge{font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(59,130,246,0.15);color:var(--acc);border:1px solid rgba(59,130,246,0.3)}
+  .cap{font-size:0.8rem;color:var(--tx2);font-weight:600;margin-bottom:8px;display:block}
+  .role{font-size:1rem;font-weight:700;color:var(--tx)}
+  .desc{font-size:0.88rem;color:var(--tx2);line-height:1.5}
+  .arrow{font-size:1.5rem;color:var(--acc);z-index:3;position:relative}
+  .arrow::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34px;height:34px;background:rgba(59,130,246,0.1);border-radius:50%;z-index:-1}
+  .capability-badge{font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:10px;background:rgba(16,185,129,0.15);color:#22d3ee;border:1px solid rgba(16,185,129,0.3)}
+  /* Capability Chain */
+  .chain{background:linear-gradient(180deg,rgba(16,185,129,0.08),transparent);border:1px dashed var(--acc2);border-radius:16px;padding:24px;margin:32px 0}
+  .chain h3{font-size:1.1rem;color:var(--tx);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .chain-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .cap-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;min-width:150px;text-align:center}
+  .cap-item .cap-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+  .cap-item .cap-name{font-weight:700;color:var(--tx);font-size:0.85rem}
+  .cap-item .cap-desc{font-size:0.75rem;color:var(--tx2);margin-top:4px;line-height:1.4}
+  .chain-arrow{font-size:1.4rem;color:var(--acc2);font-weight:bold}
+  /* Data Flow */
+  .dataflow{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .dataflow h3{font-size:1.1rem;color:var(--tx);margin-bottom:16px}
+  .flow-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-size:0.85rem;color:var(--tx);font-weight:600}
+  .chip.data{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:var(--acc)}
+  .chip.result{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#22d3ee}
+  .flow-arrow{font-size:1rem;color:var(--acc);font-weight:bold}
+  /* Demo Flow */
+  .demo{background:linear-gradient(180deg,rgba(99,102,241,0.08),rgba(79,70,229,0.04));border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:24px;margin-top:24px}
+  .demo h3{font-size:1.1rem;color:var(--tx);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .demo-steps{display:flex;gap:14px;overflow-x:auto;padding-bottom:16px}
+  .demo-step{flex:0 0 auto;min-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .step-num{font-size:1.5rem;font-weight:800;color:var(--acc2);margin-bottom:8px}
+  .step-title{font-weight:700;color:var(--tx);font-size:0.9rem;margin-bottom:6px}
+  .step-desc{font-size:0.8rem;color:var(--tx2);line-height:1.4}
+  .step-time{font-size:0.75rem;color:var(--acc2);margin-top:6px;font-weight:700}
+  /* Privacy */
+  .privacy{background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:16px;padding:20px;margin-top:24px}
+  .privacy h3{font-size:1.1rem;color:var(--tx);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .privacy ul{list-style:none;padding-left:0}
+  .privacy li{font-size:0.9rem;color:var(--tx2);margin-bottom:6px;display:flex;align-items:flex-start;gap:8px}
+  .privacy li .check{color:var(--acc2);font-weight:800}
+  /* Footer */
+  footer{text-align:center;margin-top:40px;color:var(--tx2);font-size:0.85rem;padding-top:24px;border-top:1px solid var(--line)}
+  .badge-row{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  .pill{font-size:0.75rem;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
+  @media(max-width:768px){.stage{flex-direction:column;align-items:flex-start}.arrow{display:none}.stage:not(:last-child)::after{display:none}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Watchtower — AI Security Analyzer</h1>
+<div class="subtitle">Arsitektur & Alur Inovasi — UGREEN AI NAS Hackathon 2026</div>
+</div>
+
+<!-- Architecture Diagram -->
+<div class="diagram">
+<h2><span class="dot"></span>Arsitektur Sistem — 3 Agen Ahli Rantai 4 Kemampuan UGOS</h2>
+<div class="flow">
+
+<!-- Stage 1 -->
+<div class="stage">
+<div class="agent-card">
+<div class="card-header">
+<span class="badge">AGEN 1</span>
+<span class="capability-badge">SURVEILLANCE</span>
+</div>
+<div class="cap">Kemampuan UGOS</div>
+<div class="role">Scanner Agent</div>
+<div class="desc">Query kamera secara bahasa alami → daftar terstruktur peristiwa (tag waktu, kamera, jenis, confidence).</div>
+</div>
+<div class="arrow">▶</div>
+<div class="agent-card">
+<div class="card-header">
+<span class="badge">AGEN 2</span>
+<span class="capability-badge">VIDEO + FILES</span>
+</div>
+<div class="cap">Kemampuan UGOS</div>
+<div class="role">Analyzer Agent</div>
+<div class="desc">Ekstrak klip video ±30 detik sekitar setiap peristiwa → simpan ke /Security/.</div>
+</div>
+<div class="arrow">▶</div>
+<div class="agent-card">
+<div class="card-header">
+<span class="badge">AGEN 3</span>
+<span class="capability-badge">KNOWLEDGE + FILES</span>
+</div>
+<div class="cap">Kemampuan UGOS</div>
+<div class="role">Reporter Agent</div>
+<div class="desc">AI (Nemotron) menghasilkan laporan HTML dengan ringkasan eksekutif, timeline, klip, rekomendasi.</div>
+</div>
+</div>
+
+<div class="stage">
+<div class="agent-card" style="background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(16,185,129,0.08));border-color:var(--acc2)">
+<div class="card-header">
+<span class="badge">OUTPUT</span>
+<span class="capability-badge">HTML REPORT</span>
+</div>
+<div class="cap">Hasil Akhir</div>
+<div class="role">Security Briefing</div>
+<div class="desc">File HTML tunggal: ringkasan eksekutif, timeline visual, klip video putar inline, per-kamera, rekomendasi tindakan.</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- Capability Chain -->
+<div class="chain">
+<h3><span style="color:#22d3ee">⬡</span> Rantai 4 Kemampuan UGOS (Chained Capabilities)</h3>
+<div class="chain-row">
+<div class="cap-item">
+<span class="cap-icon">📹</span>
+<div class="cap-name">Surveillance</span>
+<div class="cap-desc">Query kamera & event (person, vehicle, motion, package)</div>
+</div>
+<div class="chain-arrow">▶</div>
+<div class="cap-item">
+<span class="cap-icon">🎬</span>
+<div class="cap-name">Video</span>
+<div class="cap-desc">Ekstrak klip ±30 detik di sekitar setiap peristiwa</div>
+</div>
+<div class="chain-arrow">▶</div>
+<div class="cap-item">
+<span class="cap-icon">🧠</span>
+<div class="cap-name">Knowledge</span>
+<div class="cap-desc">AI reasoning (Nemotron) → ringkasan & analisis</div>
+</div>
+<div class="chain-arrow">▶</div>
+<div class="cap-item">
+<span class="cap-icon">📁</span>
+<div class="cap-name">Files</span>
+<div class="cap-desc">Simpan klip & laporan HTML ke folder NAS</div>
+</div>
+</div>
+</div>
+
+<!-- Data Flow -->
+<div class="dataflow">
+<h3>🔄 Alur Data — Dari Query hingga Laporan</h3>
+<div class="flow-row">
+<div class="chip data">💬 User Query</div>
+<div class="flow-arrow">→</div>
+<div class="chip data">📊 Event List</div>
+<div class="flow-arrow">→</div>
+<div class="chip data">🎬 Video Clips</div>
+<div class="flow-arrow">→</div>
+<div class="chip result">📋 HTML Briefing</div>
+</div>
+</div>
+
+<!-- Demo Flow -->
+<div class="demo">
+<h3>⏱️ Alur Demo 90 Detik (Juri)</h3>
+<div class="demo-steps">
+<div class="demo-step">
+<div class="step-num">1</div>
+<div class="step-title">Hook (0–10s)</div>
+<div class="step-desc">"Kamera kamu ada, tapi siapa yang menonton?" Split screen 4 kamera vs teks.</div>
+<div class="step-time">10 detik</div>
+</div>
+<div class="demo-step">
+<div class="step-num">2</div>
+<div class="step-title">Query (10–25s)</div>
+<div class="step-desc">Ketik <i>"analyze last 24 hours"</i> → tabel event muncul.</div>
+<div class="step-time">15 detik</div>
+</div>
+<div class="demo-step">
+<div class="step-num">3</div>
+<div class="step-title">Extract (25–45s)</div>
+<div class="step-desc">Klik extract → folder buka, 10 klip MP4 siap putar.</div>
+<div class="step-time">20 detik</div>
+</div>
+<div class="demo-step">
+<div class="step-num">4</div>
+<div class="step-title">Briefing (45–75s)</div>
+<div class="step-desc">Browser buka HTML: ringkasan, timeline, klip putar, rekomendasi.</div>
+<div class="step-time">30 detik</div>
+</div>
+<div class="demo-step">
+<div class="step-num">5</div>
+<div class="step-title">Penutup (75–90s)</div>
+<div class="step-desc">Logo Watchtower + "Built on UGOS. Local. Private. Yours."</div>
+<div class="step-time">15 detik</div>
+</div>
+</div>
+</div>
+
+<!-- Privacy -->
+<div class="privacy">
+<h3><span style="color:#f472b6">🔒</span> Privasi & Keamanan — Design-First</h3>
+<ul>
+<li><span class="check">✓</span> <strong>100% Lokal:</strong> Semua pemrosesan di NAS, tidak ada data keluar dari komputer pengguna.</td>
+<li><span class="check">✓</span> <strong>Face Recognition OFF default:</strong> Tidak ada data biometrik diproses kecuali user secara eksplisit mengaktifkan (BIPA/GDPR/UU PDP compliant).</td>
+<li><span class="check">✓</span> <strong>Konfirmasi per aksi:</strong> Setiap operasi tulis (simpan klip, buat laporan) memerlukan persetujuan pengguna via UGOS confirmation gate.</td>
+<li><span class="check">✓</span> <strong>Tanpa kredensial:</strong> Tidak ada API key, token, atau data pribadi yang disimpan dalam paket skill.</td>
+</ul>
+</div>
+
+<footer>
+<div class="badge-row">
+<span class="pill">UGOS Skill</span>
+<span class="pill">Surveillance Track</span>
+<span class="pill">Python + uliya-skill-kit</span>
+<span class="pill">MIT License</span>
+<span class="pill">Round 1 Ready</span>
+</div>
+<div style="margin-top:12px;font-size:0.8rem;color:#64748b">
+Watchtower — AI Security Analyzer untuk UGREEN AI NAS Hackathon 2026<br>
+Dibangun oleh AHVO2 (AI Hackathon Virtual Office 2) • Repo: github.com/atenks2026/watchtower
+</div>
+</footer>
+</div>
+</body>
+</html>
